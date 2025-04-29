@@ -1,0 +1,839 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent-color: #2563eb;
+            --border-color: #eee;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --active-class-bg: #f0f9ff;
+            --passing-period-bg: #fffaf0;
+            --transition-duration: 0.5s;
+        }
+
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-color: #3b82f6;
+            --border-color: #404040;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            --active-class-bg: #3b3b3b;
+            --passing-period-bg: #3f3f3f;
+        }
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+
+        body {
+            background-color: var(--bg-primary);
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+
+        .header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .header-content h1 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+
+        .quick-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+
+        .quick-link {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+
+        .quick-link:hover {
+            transform: scale(1.1);
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+
+        .quick-link.wilmot {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: transform 0.2s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+
+        .schedule-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: background-color var(--transition-duration), transform var(--transition-duration);
+        }
+
+
+        .schedule-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+
+        .schedule-item.active {
+            background-color: var(--active-class-bg);
+            transform: translateX(5px);
+        }
+
+
+        .schedule-item.passing-period {
+            background-color: var(--passing-period-bg);
+            animation: pulse 1.5s infinite alternate;
+        }
+
+
+        @keyframes pulse {
+            from {
+                background-color: var(--passing-period-bg);
+            }
+            to {
+                background-color: var(--active-class-bg);
+            }
+        }
+
+
+        .schedule-item i {
+            width: 24px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+
+        .class-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+
+        .class-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+
+        .countdown {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+
+        .countdown-text {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+
+        .countdown-timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+
+        .link-item {
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+
+        .link-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow);
+        }
+
+
+        .break-message {
+            text-align: center;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            padding: 20px;
+        }
+
+
+        .time-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+        }
+
+
+        .weekend-message {
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+
+        .next-school-day {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--bg-primary);
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+
+        .passing-period-message {
+            text-align: center;
+            padding: 20px;
+            animation: fadeInOut 2s infinite alternate;
+        }
+
+
+        .passing-period-message i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+
+
+        @keyframes fadeInOut {
+            from {
+                opacity: 0.7;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+
+        /* For mobile responsiveness */
+        @media (max-width: 640px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .quick-links {
+                overflow-x: auto;
+                padding-bottom: 5px;
+                width: calc(100% - 55px); /* Accounting for theme toggle button */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1 id="greeting">Loading...</h1>
+                <div class="time-info">
+                    <i class="fas fa-clock"></i>
+                    <span id="current-time"></span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="quick-links">
+                    <a href="https://my.otus.com/" target="_blank" class="quick-link" title="Otus">
+                        <i class="fas fa-school"></i>
+                    </a>
+                    <a href="https://skyward.iscorp.com/scripts/wsisa.dll/WService=wseduwilmotwi/seplog01.w" target="_blank" class="quick-link" title="Skyward">
+                        <i class="fas fa-cloud"></i>
+                    </a>
+                    <a href="https://app.smartpass.app/" target="_blank" class="quick-link" title="Smartpass">
+                        <i class="fas fa-person-walking"></i>
+                    </a>
+                    <a href="https://mail.google.com/" target="_blank" class="quick-link" title="Gmail">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                    <a href="https://www.wilmothighschool.com/" target="_blank" class="quick-link wilmot" title="Wilmot High School">
+                        <i class="fas fa-w"></i>
+                    </a>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <div class="countdown">
+            <div class="countdown-text">Time until next class:</div>
+            <div id="countdown-timer" class="countdown-timer">Loading...</div>
+        </div>
+
+
+        <div class="grid">
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-calendar"></i>
+                    Today's Schedule
+                </h2>
+                <div id="schedule"></div>
+            </div>
+
+
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span id="current-class-title">Current Class</span>
+                </h2>
+                <div id="current-class-content"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Schedule and classLinks objects
+        const schedule = [
+            { time: "7:35 AM - 8:15 AM", class: "Late Start", icon: "fa-mug-hot" },
+            { time: "8:20 AM - 9:00 AM", class: "PACC US History", icon: "fa-landmark" },
+            { time: "9:05 AM - 9:45 AM", class: "Honors Physics", icon: "fa-atom" },
+            { time: "9:50 AM - 10:30 AM", class: "WARP", icon: "fa-book" },
+            { time: "10:35 AM - 11:15 AM", class: "Honors Vocal Ensemble", icon: "fa-music" },
+            { time: "11:15 AM - 12:00 PM", class: "PLTW Cybersecurity", icon: "fa-shield-halved" },
+            { time: "12:35 PM - 1:15 PM", class: "Honors Algebra II", icon: "fa-square-root-variable" },
+            { time: "1:20 PM - 2:00 PM", class: "Advanced Theater", icon: "fa-theater-masks" },
+            { time: "2:05 PM - 2:45 PM", class: "AP Language and Composition", icon: "fa-pen-fancy" }
+        ];
+
+
+        const classLinks = {
+            "Late Start": {
+                content: '<div class="break-message"><i class="fas fa-mug-hot"></i> Enjoy the break!</div>'
+            },
+            "PACC US History": {
+                links: [
+                    { url: "https://my.otus.com/", icon: "fa-school", text: "Otus" },
+                    { url: "https://www.americanyawp.com/", icon: "fa-book", text: "American Yawp" }
+                ]
+            },
+            "Honors Physics": {
+                links: [
+                    { url: "https://classroom.google.com/c/NzA4NDcxOTk3OTUx", icon: "fa-graduation-cap", text: "Google Classroom" }
+                ]
+            },
+            "WARP": {
+                links: [
+                    { url: "https://my.otus.com/", icon: "fa-school", text: "Otus" }
+                ]
+            },
+            "Honors Vocal Ensemble": {
+                links: [
+                    { url: "https://classroom.google.com/c/NzA1NTkwODUyMzA4", icon: "fa-graduation-cap", text: "Google Classroom" }
+                ]
+            },
+            "PLTW Cybersecurity": {
+                links: [
+                    { url: "https://classroom.google.com/c/NzA1MTE5ODU0NTYw", icon: "fa-graduation-cap", text: "Google Classroom" },
+                    { url: "https://my.otus.com/", icon: "fa-school", text: "Otus" },
+                    { url: "file:///C:/Users/shumwaymat/Downloads/cyber%20dictionary%202025.html", icon: "fa-pen-nib", text: "Cheatsheet" },
+                    { url: "https://my.pltw.org", icon: "fa-shield-halved", text: "PLTW" },
+                    { url: "https://skyward.iscorp.com/scripts/wsisa.dll/WService=wseduwilmotwi/seplog01.w?SSO=dad02aca-3203-3f99-d114-ee43c8f8f8ab&frmStsRdr=True", icon: "fa-cloud", text: "Skyward" }
+                ]
+            },
+            "B Lunch": {
+                content: '<div class="break-message"><i class="fas fa-utensils"></i> Enjoy your lunch!</div>'
+            },
+            "Honors Algebra II": {
+                links: [
+                    { url: "https://ebooks.cpm.org", icon: "fa-book", text: "CPM eBooks" },
+                    { url: "https://classroom.google.com/c/NzA1MTgzOTI4MDIw", icon: "fa-graduation-cap", text: "Google Classroom" }
+                ]
+            },
+            "Advanced Theater": {
+                content: '<div class="break-message"><i class="fas fa-theater-masks"></i> Time to get acting!</div>'
+            },
+            "AP Language and Composition": {
+                links: [
+                    { url: "https://classroom.google.com/c/NzA1MjQwMDI1NDE3", icon: "fa-graduation-cap", text: "Google Classroom" },
+                    { url: "https://myap.collegeboard.org/", icon: "fa-graduation-cap", text: "AP Classroom" },
+                    { url: "https://my.otus.com/", icon: "fa-school", text: "Otus" }
+                ]
+            }
+        };
+
+
+        // Check if it's a weekend
+        function isWeekend() {
+            const day = moment().day();
+            return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+        }
+
+
+        // Get next school day
+        function getNextSchoolDay() {
+            const now = moment();
+            const day = now.day();
+            
+            if (day === 6) { // Saturday
+                return "Monday, " + moment().add(2, 'days').format('MMMM D');
+            } else if (day === 0) { // Sunday
+                return "Monday, " + moment().add(1, 'days').format('MMMM D');
+            }
+            return null;
+        }
+
+
+        // Modified getGreeting function
+        function getGreeting() {
+            const hour = moment().hour();
+            let greeting = "";
+            
+            if (hour >= 5 && hour < 7) {
+                greeting = "Good Early Morning";
+            } else if (hour >= 7 && hour < 12) {
+                greeting = "Good Morning";
+            } else if (hour >= 12 && hour < 17) {
+                greeting = "Good Afternoon";
+            } else if (hour >= 17 && hour < 21) {
+                greeting = "Good Evening";
+            } else {
+                greeting = "Good Night";
+            }
+            
+            return `${greeting}, Matthew!`;
+        }
+
+
+        // Modified updateTime function
+        function updateTime() {
+            const now = moment();
+            document.getElementById('current-time').textContent = now.format('h:mm:ss A');
+            document.getElementById('greeting').textContent = getGreeting();
+        }
+
+
+        // Check if current time is in a passing period
+        function isPassingPeriod() {
+            if (isWeekend()) {
+                return false;
+            }
+
+
+            const now = moment();
+            
+            for (let i = 0; i < schedule.length - 1; i++) {
+                const currentEndTime = moment(schedule[i].time.split(' - ')[1], 'h:mm A');
+                const nextStartTime = moment(schedule[i + 1].time.split(' - ')[0], 'h:mm A');
+                
+                if (now.isAfter(currentEndTime) && now.isBefore(nextStartTime)) {
+                    return {
+                        current: schedule[i].class,
+                        next: schedule[i + 1].class,
+                        remainingTime: moment.duration(nextStartTime.diff(now))
+                    };
+                }
+            }
+            
+            return false;
+        }
+
+
+        // Modified findNextClass function with passing period handling
+        function findNextClass() {
+            if (isWeekend()) {
+                return null;
+            }
+
+
+            const now = moment();
+            const passingPeriod = isPassingPeriod();
+            
+            if (passingPeriod) {
+                return {
+                    passingPeriod: true,
+                    current: passingPeriod.current,
+                    next: passingPeriod.next,
+                    remainingTime: passingPeriod.remainingTime
+                };
+            }
+            
+            for (let i = 0; i < schedule.length; i++) {
+                const times = schedule[i].time.split(' - ');
+                const startTime = moment(times[0], 'h:mm A');
+                const endTime = moment(times[1], 'h:mm A');
+
+
+                if (now.isBefore(startTime)) {
+                    return {
+                        class: schedule[i],
+                        startTime: startTime,
+                        endTime: endTime,
+                        status: 'upcoming'
+                    };
+                } else if (now.isBetween(startTime, endTime)) {
+                    return {
+                        class: schedule[i],
+                        startTime: startTime,
+                        endTime: endTime,
+                        status: 'current'
+                    };
+                }
+            }
+            return null;
+        }
+
+
+        // Modified updateCurrentClass function with passing period support
+        function updateCurrentClass() {
+            const titleElement = document.getElementById('current-class-title');
+            const contentElement = document.getElementById('current-class-content');
+
+
+            if (isWeekend()) {
+                titleElement.textContent = 'Weekend Break';
+                const nextDay = getNextSchoolDay();
+                contentElement.innerHTML = `
+                    <div class="weekend-message">
+                        <i class="fas fa-house"></i>
+                        <p>Enjoy your weekend!</p>
+                        <div class="next-school-day">
+                            <p>Next school day: ${nextDay}</p>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+
+            const nextClass = findNextClass();
+            
+            if (!nextClass) {
+                titleElement.textContent = 'School Day Complete';
+                contentElement.innerHTML = '<div class="break-message"><i class="fas fa-check-circle"></i> No more classes today!</div>';
+                return;
+            }
+
+
+            if (nextClass.passingPeriod) {
+                titleElement.textContent = 'Passing Period';
+                contentElement.innerHTML = `
+                    <div class="passing-period-message">
+                        <i class="fas fa-walking"></i>
+                        <p>Time to get to your next class!</p>
+                        <p>Heading from ${nextClass.current} to ${nextClass.next}</p>
+                        <p>${nextClass.remainingTime.minutes()}m ${nextClass.remainingTime.seconds()}s remaining</p>
+                    </div>`;
+                return;
+            }
+
+
+            const currentClassName = nextClass.class.class;
+            titleElement.textContent = nextClass.status === 'current' ? `Current Class: ${currentClassName}` : `Next Class: ${currentClassName}`;
+            
+            const classInfo = classLinks[currentClassName];
+            if (classInfo.content) {
+                contentElement.innerHTML = classInfo.content;
+            } else if (classInfo.links) {
+                contentElement.innerHTML = `
+                    <div class="links-grid">
+                        ${classInfo.links.map(link => `
+                            <a href="${link.url}" target="_blank" class="link-item">
+                                <i class="fas ${link.icon}"></i>
+                                ${link.text}
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+
+        // Modified updateCountdown function with passing period support
+        function updateCountdown() {
+            const countdownElement = document.getElementById('countdown-timer');
+            
+            if (isWeekend()) {
+                const nextDay = getNextSchoolDay();
+                countdownElement.textContent = `Classes resume on ${nextDay}`;
+                return;
+            }
+
+
+            const nextClass = findNextClass();
+            
+            if (!nextClass) {
+                countdownElement.textContent = 'No more classes today';
+                return;
+            }
+
+
+            const now = moment();
+            let timeUntil;
+            let message;
+
+
+            if (nextClass.passingPeriod) {
+                timeUntil = nextClass.remainingTime;
+                message = `${timeUntil.minutes()}m ${timeUntil.seconds()}s until ${nextClass.next}`;
+            } else if (nextClass.status === 'upcoming') {
+                timeUntil = moment.duration(nextClass.startTime.diff(now));
+                message = `${timeUntil.hours()}h ${timeUntil.minutes()}m ${timeUntil.seconds()}s until ${nextClass.class.class}`;
+            } else {
+                timeUntil = moment.duration(nextClass.endTime.diff(now));
+                message = `${timeUntil.hours()}h ${timeUntil.minutes()}m ${timeUntil.seconds()}s remaining in ${nextClass.class.class}`;
+            }
+
+
+            countdownElement.textContent = message;
+        }
+
+
+        // Modified renderSchedule function with passing period support
+        function renderSchedule() {
+            const scheduleElement = document.getElementById('schedule');
+            
+            if (isWeekend()) {
+                const nextDay = getNextSchoolDay();
+                scheduleElement.innerHTML = `
+                    <div class="weekend-message">
+                        <i class="fas fa-calendar-day"></i>
+                        <p>No classes scheduled for today</p>
+                        <div class="next-school-day">
+                            <p>Next school day: ${nextDay}</p>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+
+            const now = moment();
+            const passingPeriod = isPassingPeriod();
+            
+            scheduleElement.innerHTML = schedule.map((item, index) => {
+                const times = item.time.split(' - ');
+                const startTime = moment(times[0], 'h:mm A');
+                const endTime = moment(times[1], 'h:mm A');
+                const isActive = now.isBetween(startTime, endTime);
+                
+                // Check if this is before the next class during passing period
+                const isBeforeNextDuringPassing = passingPeriod && 
+                                                 index > 0 && 
+                                                 schedule[index - 1].class === passingPeriod.current && 
+                                                 item.class === passingPeriod.next;
+                
+                const classes = isActive ? 'active' : 
+                               isBeforeNextDuringPassing ? 'passing-period' : '';
+                
+                return `
+                    <div class="schedule-item ${classes}">
+                        <i class="fas ${item.icon}"></i>
+                        <div>
+                            <div class="class-name">${item.class}</div>
+                            <div class="class-time">${item.time}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // If in passing period, add a visual indicator between classes
+            if (passingPeriod) {
+                const items = scheduleElement.querySelectorAll('.schedule-item');
+                for (let i = 0; i < items.length - 1; i++) {
+                    if (schedule[i].class === passingPeriod.current && 
+                        schedule[i + 1].class === passingPeriod.next) {
+                        const passingIndicator = document.createElement('div');
+                        passingIndicator.className = 'passing-period-indicator';
+                        passingIndicator.innerHTML = `
+                            <div style="text-align: center; padding: 8px; font-size: 0.8rem; color: var(--text-secondary);">
+                                <i class="fas fa-walking"></i> Passing Period (${passingPeriod.remainingTime.minutes()}m ${passingPeriod.remainingTime.seconds()}s)
+                            </div>
+                        `;
+                        items[i].after(passingIndicator);
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        // Theme toggle functions 
+        function toggleTheme() {
+            const body = document.documentElement;
+            const themeToggle = document.querySelector('.theme-toggle i');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeToggle.classList.remove('fa-sun');
+                themeToggle.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.classList.remove('fa-moon');
+                themeToggle.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const themeToggle = document.querySelector('.theme-toggle i');
+            
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.classList.remove('fa-moon');
+                themeToggle.classList.add('fa-sun');
+            }
+        }
+
+
+        // Initialize everything
+        function init() {
+            initTheme();
+            updateTime();
+            updateCountdown();
+            renderSchedule();
+            updateCurrentClass();
+            
+            // Update everything every second
+            setInterval(() => {
+                updateTime();
+                updateCountdown();
+                renderSchedule();
+                updateCurrentClass();
+            }, 1000);
+        }
+
+
+        // Start the dashboard when the page loads
+        init();
+    </script>
+</body>
+</html>
